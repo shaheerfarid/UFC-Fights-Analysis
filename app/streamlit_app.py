@@ -21,15 +21,75 @@ st.set_page_config(page_title="UFC Fight Predictor", page_icon="🥊", layout="w
 
 RED, BLUE = "#d20a0a", "#2563c9"  # corner colours: fighter_1 / fighter_2
 st.markdown(f"""<style>
+/* A calmer canvas with stronger hierarchy and consistent spacing. */
+[data-testid="stAppViewContainer"] {{ background: #f8f7f5; }}
+[data-testid="stHeader"] {{ background: #fff; border-bottom: 1px solid #e7e9ed; }}
+[data-testid="stSidebar"], [data-testid="collapsedControl"] {{ display: none !important; }}
+[data-testid="stMainBlockContainer"] {{ padding-top: 2.5rem; padding-bottom: 4rem; max-width: 1180px; }}
+h1 {{ letter-spacing: -0.045em; font-weight: 780 !important; color: #171b22; }}
+h2, h3 {{ letter-spacing: -0.025em; color: #202631; }}
+[data-testid="stCaptionContainer"] {{ color: #657080; }}
+[data-testid="stMetric"] {{ background: white; border: 1px solid #e7e9ed; border-radius: 14px; padding: 1rem 1.1rem; box-shadow: 0 2px 8px #18233308; }}
+[data-testid="stMetricLabel"] {{ color: #687383; }}
+[data-testid="stMetricValue"] {{ font-weight: 750; }}
+[data-testid="stVerticalBlockBorderWrapper"] {{ border-color: #e6e8ec; border-radius: 16px; background: white; box-shadow: 0 3px 12px #18233308; }}
+[data-testid="stTabs"] button {{ font-weight: 650; }}
+[data-testid="stBaseButton-primary"] {{ border-radius: 9px; font-weight: 650; }}
+[data-testid="stBaseButton-secondary"] {{ border-radius: 9px; font-weight: 600; }}
+[data-testid="stTopNav"] {{ gap: .2rem; }}
+[data-testid="stTopNav"] a, [data-testid="stTopNav"] button {{
+  background:transparent !important; border:0 !important; border-bottom:2px solid transparent !important;
+  border-radius:0 !important; color:#535b66 !important; font-weight:650; padding:.8rem 1rem !important;
+}}
+[data-testid="stTopNav"] a[aria-current="page"],
+[data-testid="stTopNav"] button[aria-current="page"],
+[data-testid="stTopNav"] [aria-selected="true"] {{ color:#171b22 !important; border-bottom-color:{RED} !important; }}
+[data-testid="stDataFrame"] {{ border: 1px solid #e7e9ed; border-radius: 10px; overflow: hidden; }}
+.page-intro {{ color: #667180; font-size: 1.02rem; margin-top: -.6rem; margin-bottom: 1.2rem; }}
+.event-heading {{ display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin:1.6rem 0 .65rem; }}
+.event-title {{ border-left:5px solid {RED}; padding-left:.65rem; color:#17191d; font-family:Impact, "Arial Narrow", sans-serif; font-size:clamp(1.35rem, 2.5vw, 2rem); font-weight:900; letter-spacing:-.025em; line-height:1.05; text-transform:uppercase; }}
+.event-date {{ color:#4b5058; font-size:1rem; white-space:nowrap; }}
+.event-subtitle {{ color:#69717d; font-size:.85rem; margin:.45rem 0 .75rem .9rem; }}
+.corner-legend {{ display:flex; gap:1.1rem; margin:.3rem 0 .9rem; color:#59616d; font-size:.82rem; }}
+.corner-legend .red {{ color:{RED}; font-weight:700; }}
+.corner-legend .blue {{ color:{BLUE}; font-weight:700; }}
+.prediction-row {{ padding:.8rem .15rem .25rem; }}
+.bout-head {{ display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:.55rem; }}
+.bout-names {{ color:#1c1d20; font-size:clamp(1rem, 1.7vw, 1.35rem); }}
+.bout-names strong {{ font-weight:750; }}
+.bout-names .favorite {{ font-weight:850; }}
+.bout-vs {{ color:#53565c; padding:0 .35em; }}
+.bout-odds {{ color:#54575e; font-size:clamp(.98rem, 1.5vw, 1.25rem); white-space:nowrap; font-variant-numeric:tabular-nums; }}
+.bout-odds .probability-a {{ color:{RED}; }}
+.bout-odds .probability-b {{ color:{BLUE}; }}
+.bout-odds .favorite {{ font-weight:850; }}
+.prob-track {{ display:flex; height:8px; width:100%; overflow:hidden; }}
+.prob-track .corner-a {{ display:block; height:100%; background:{RED}; }}
+.prob-track .corner-b {{ display:block; height:100%; background:{BLUE}; }}
+.bout-notes {{ color:#727c89; font-size:.76rem; margin-top:.35rem; }}
+.bout-notes:empty {{ display:none; }}
+.fight-separator {{ border:0; border-top:1px solid #dedfdf; margin:.15rem 0; }}
+@media (max-width: 640px) {{
+  [data-testid="stMainBlockContainer"] {{ padding:1.5rem 1rem 3rem; }}
+  .event-heading {{ align-items:flex-start; flex-direction:column; gap:.35rem; }}
+  .event-date {{ font-size:.9rem; }}
+  .bout-head {{ align-items:flex-start; flex-direction:column; gap:.2rem; }}
+  .bout-odds {{ font-size:.95rem; }}
+}}
 .split {{ display:flex; height:10px; border-radius:5px; overflow:hidden; margin:4px 0 2px; }}
 .split .r {{ background:{RED}; }} .split .b {{ background:{BLUE}; flex:1; }}
 .fighter {{ line-height:1.25; }}
 .fighter .name {{ font-weight:500; }} .fighter.fav .name {{ font-weight:700; }}
-.fighter .pct {{ font-size:1.35rem; font-weight:700; }}
+.fighter .pct {{ font-size:1.4rem; font-weight:800; letter-spacing:-.04em; }}
 .fighter.red .pct {{ color:{RED}; }} .fighter.blue .pct {{ color:{BLUE}; }}
 .fighter.blue {{ text-align:right; }}
 .wc {{ text-align:center; font-size:0.8rem; opacity:0.7; }}
 </style>""", unsafe_allow_html=True)
+
+
+def page_heading(title: str, description: str) -> None:
+    st.title(title)
+    st.markdown(f'<div class="page-intro">{html.escape(description)}</div>', unsafe_allow_html=True)
 
 
 def split_bar(p: float) -> str:
@@ -40,6 +100,35 @@ def split_bar(p: float) -> str:
 def fighter_html(name: str, pct: float, corner: str, favourite: bool) -> str:
     return (f'<div class="fighter {corner}{" fav" if favourite else ""}">'
             f'<div class="name">{html.escape(name)}</div><div class="pct">{pct:.0%}</div></div>')
+
+
+def prediction_row_html(row: pd.Series) -> str:
+    """Show corner-consistent probabilities and the split bar for one bout."""
+    p = min(max(float(row["p"]), 0.0), 1.0)
+    a, b = html.escape(str(row["fighter_1"])), html.escape(str(row["fighter_2"]))
+    fav_a = " favorite" if p > .5 else ""
+    fav_b = " favorite" if p < .5 else ""
+    weight = row.get("weight_class")
+    notes = [weight] if isinstance(weight, str) else []
+    if row["different_division"]:
+        notes.append(f"⚠ Different weight classes ({row['a_division']} vs {row['b_division']})")
+    unknown = [name for name, fid in ((row["fighter_1"], row["fighter_1_id"]),
+                                      (row["fighter_2"], row["fighter_2_id"]))
+               if not isinstance(fid, str)]
+    if unknown:
+        notes.append("Not in our data, treated as debut: " + ", ".join(unknown))
+    note_markup = html.escape(" · ".join(notes))
+    return (
+        '<div class="prediction-row">'
+        f'<div class="bout-head"><div class="bout-names"><strong class="{fav_a.strip()}">{a}</strong>'
+        f'<span class="bout-vs">vs</span><strong class="{fav_b.strip()}">{b}</strong></div>'
+        f'<div class="bout-odds"><span class="probability-a{fav_a}">{p:.0%}</span> / '
+        f'<span class="probability-b{fav_b}">{1-p:.0%}</span></div></div>'
+        f'<div class="prob-track" role="img" aria-label="{a}: {p:.0%}; {b}: {1-p:.0%}">'
+        f'<span class="corner-a" style="width:{p * 100:.1f}%"></span>'
+        f'<span class="corner-b" style="width:{(1-p) * 100:.1f}%"></span></div>'
+        f'<div class="bout-notes">{note_markup}</div></div>'
+    )
 
 # feature -> (label, format); formats take the raw per-fighter value
 STAT_ROWS = {
@@ -124,11 +213,12 @@ def stat_table(row: pd.Series) -> pd.DataFrame:
 
 def show_matchup(row: pd.Series, models: dict) -> None:
     a, b, p = row["fighter_1"], row["fighter_2"], float(row["p"])
-    left, mid, right = st.columns([2, 3, 2], vertical_alignment="center")
-    left.markdown(fighter_html(a, p, "red", p >= 0.5), unsafe_allow_html=True)
-    right.markdown(fighter_html(b, 1 - p, "blue", p < 0.5), unsafe_allow_html=True)
-    mid.markdown(split_bar(p) + f'<div class="wc">{confidence_label(p)}: {html.escape(a if p >= 0.5 else b)}</div>',
-                 unsafe_allow_html=True)
+    with st.container(border=True):
+        left, mid, right = st.columns([2, 3, 2], vertical_alignment="center")
+        left.markdown(fighter_html(a, p, "red", p >= 0.5), unsafe_allow_html=True)
+        right.markdown(fighter_html(b, 1 - p, "blue", p < 0.5), unsafe_allow_html=True)
+        mid.markdown(split_bar(p) + f'<div class="wc">{confidence_label(p)}: {html.escape(a if p >= 0.5 else b)}</div>',
+                     unsafe_allow_html=True)
 
     model_ps = {name: float(row[f"p_{name}"]) for name in models}
     spread = max(model_ps.values()) - min(model_ps.values())
@@ -192,27 +282,16 @@ def open_head_to_head(row: pd.Series, labels_by_id: dict) -> None:
 
 
 def bout_row(row: pd.Series, key: str, labels_by_id: dict) -> None:
-    """One bout on a card: names, win probabilities, a bar and a Details button."""
-    p = float(row["p"])
+    """Table-like bout row with corner probabilities and a stats/details action."""
     unknown = [name for name, fid in ((row["fighter_1"], row["fighter_1_id"]), (row["fighter_2"], row["fighter_2_id"]))
                if not isinstance(fid, str)]
-    with st.container(border=True):
-        left, mid, right, button = st.columns([3, 4, 3, 2], vertical_alignment="center")
-        left.markdown(fighter_html(row["fighter_1"], p, "red", p >= 0.5), unsafe_allow_html=True)
-        weight = row.get("weight_class")
-        mid.markdown(split_bar(p) + (f'<div class="wc">{html.escape(weight)}</div>' if isinstance(weight, str) else ""),
-                     unsafe_allow_html=True)
-        right.markdown(fighter_html(row["fighter_2"], 1 - p, "blue", p < 0.5), unsafe_allow_html=True)
-        if button.button("Details →", key=key, disabled=bool(unknown), width="stretch",
-                         help="Fighter not in our data" if unknown else "Open in Head to head"):
-            open_head_to_head(row, labels_by_id)
-        notes = []
-        if row["different_division"]:
-            notes.append(f"⚠ different weight classes ({row['a_division']} vs {row['b_division']})")
-        if unknown:
-            notes.append("not in our data, treated as debut: " + ", ".join(unknown))
-        if notes:
-            st.caption(" · ".join(notes))
+    display, action = st.columns([10, 1.7], vertical_alignment="center")
+    display.markdown(prediction_row_html(row), unsafe_allow_html=True)
+    if action.button("Details →", key=key, disabled=bool(unknown), width="stretch",
+                     help="View pre-fight stats and what drives the model's pick" if not unknown
+                     else "Fighter not in our data"):
+        open_head_to_head(row, labels_by_id)
+    st.markdown('<hr class="fight-separator">', unsafe_allow_html=True)
 
 
 def upload_card_section(fighters: pd.DataFrame, artifacts: dict, mtimes: tuple) -> None:
@@ -258,7 +337,7 @@ def load_cards() -> dict | None:
 
 
 def page_upcoming() -> None:
-    st.title("Upcoming fights")
+    page_heading("Upcoming fights", "Explore the next cards and compare each fighter’s win probability.")
     fights, stats, fighters, artifacts, mtimes = load_everything()
     if missing_model(artifacts, fighters):
         return
@@ -275,6 +354,11 @@ def page_upcoming() -> None:
         if refresh.button("Refresh", disabled=age < 1, help="Available once an hour, to go easy on ufc.com"):
             ufccom.load_upcoming(force=True)
             st.rerun()
+        st.markdown(
+            f'<div class="corner-legend"><span class="red">● Red: first fighter</span>'
+            f'<span class="blue">● Blue: second fighter</span></div>',
+            unsafe_allow_html=True,
+        )
 
     if cards:
         options = P.fighter_options(fighters)
@@ -283,13 +367,17 @@ def page_upcoming() -> None:
         preds = cached_predictions(*mtimes, matchups.drop(columns=["card", "weight_class"]))
         preds[["card", "weight_class", "date"]] = matchups[["card", "weight_class", "date"]]
 
-        tabs = st.tabs([f"{c.event} · {c.date:%b %d}" for c in cards])
-        for i, (tab, card) in enumerate(zip(tabs, cards)):
-            with tab:
-                st.subheader(f"{card.event}: {card.headline}")
-                st.caption(f"{card.date:%A, %B %d, %Y} · {len(card.bouts)} bouts · [fight card on ufc.com]({card.url})")
-                for j, row in preds[preds["card"] == i].iterrows():
-                    bout_row(row, f"bout-{j}", labels_by_id)
+        for i, card in enumerate(cards):
+            st.markdown(
+                f'<div class="event-heading"><div class="event-title">{html.escape(card.event)}'
+                f': {html.escape(card.headline)}</div><div class="event-date">{card.date:%a, %b %d, %Y}</div></div>'
+                f'<div class="event-subtitle">{len(card.bouts)} bouts · '
+                f'<a href="{html.escape(card.url, quote=True)}">Official fight card</a></div>',
+                unsafe_allow_html=True,
+            )
+            card_preds = preds[preds["card"] == i]
+            for j, row in card_preds.iterrows():
+                bout_row(row, f"bout-{j}", labels_by_id)
     elif data:
         st.info("No upcoming cards with announced bouts right now.")
 
@@ -309,7 +397,7 @@ def page_upcoming() -> None:
 
 
 def page_head_to_head() -> None:
-    st.title("Head to head")
+    page_heading("Head to head", "Choose two fighters and a date to see the forecast, key stats, and what moves the model’s pick.")
     fights, stats, fighters, artifacts, mtimes = load_everything()
     if missing_model(artifacts, fighters):
         return
@@ -322,6 +410,7 @@ def page_head_to_head() -> None:
     name_b = c2.selectbox("Fighter B", labels, index=None, key="fighter_b", placeholder="Search a fighter…")
     fight_date = c3.date_input("Fight date", key="fight_date")
     if not (name_a and name_b):
+        st.info("Start by searching for two fighters above. Their stats will be calculated using only fights before the date you choose.")
         return
     if name_a == name_b:
         st.warning("Pick two different fighters.")
@@ -338,7 +427,7 @@ def page_head_to_head() -> None:
 
 
 def page_data() -> None:
-    st.title("Data & model")
+    page_heading("Data & model", "Check the dataset, refresh fight history, and review held-out model performance.")
     fights, _, fighters, artifacts, _ = load_everything()
 
     c1, c2, c3 = st.columns(3)
@@ -372,7 +461,7 @@ def page_data() -> None:
         st.image(str(CALIBRATION_PLOT), caption="Calibration on the held-out year", width=480)
 
 
-UPCOMING = st.Page(page_upcoming, title="Upcoming fights", icon="📅", default=True)
-HEAD_TO_HEAD = st.Page(page_head_to_head, title="Head to head", icon="🥊", url_path="head-to-head")
-DATA = st.Page(page_data, title="Data & model", icon="📊", url_path="data")
-st.navigation([UPCOMING, HEAD_TO_HEAD, DATA]).run()
+UPCOMING = st.Page(page_upcoming, title="Upcoming fights", default=True)
+HEAD_TO_HEAD = st.Page(page_head_to_head, title="Head to head", url_path="head-to-head")
+DATA = st.Page(page_data, title="Data & model", url_path="data")
+st.navigation([UPCOMING, HEAD_TO_HEAD, DATA], position="top").run()
