@@ -1,0 +1,10 @@
+{
+  "event": "Sample JSON Card (test)",
+  "date": "2026-11-21",
+  "bouts": [
+    ["Petr Yan", "Merab Dvalishvili"],
+    ["Yana Santos", "Luana Santos"],
+    {"fighter_1": "Francis Marshall", "fighter_2": "Dakota Hope"},
+    ["Bruno Silva", "Jacobe Smith"]
+  ]
+}

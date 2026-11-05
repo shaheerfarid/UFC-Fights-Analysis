@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample Test Card</title>
+<!-- Test fixture for the app's "Upcoming card" upload. Matchups are made up.
+     Same structure the parser expects from a saved ufcstats event page:
+     an <h2> title, a "Date: Month DD, YYYY" line, and two fighter-details links per bout. -->
+<style>
+  :root { --bg: #f6f6f4; --card: #fff; --text: #1b1b1b; --muted: #6b6b6b; --line: #e2e2de; --accent: #c8102e; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141414; --card: #1e1e1e; --text: #ececec; --muted: #9a9a9a; --line: #2e2e2e; --accent: #ff4d5e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+  .tag { display: inline-block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  h2 { margin: 6px 0 4px; font-size: 28px; }
+  ul.meta { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); display: flex; gap: 20px; flex-wrap: wrap; }
+  ul.meta i { font-style: normal; font-weight: 600; color: var(--text); }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  tr:last-child td { border-bottom: 0; }
+  td p { margin: 0; }
+  td p + p { margin-top: 2px; }
+  a { color: var(--text); text-decoration: none; font-weight: 600; }
+  a:hover { color: var(--accent); }
+  .vs { color: var(--muted); font-size: 13px; }
+  .wc { color: var(--muted); font-size: 14px; white-space: nowrap; }
+  footer { margin-top: 16px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">Sample card · not a real event</span>
+  <h2 class="b-content__title"><span>Test Fight Night: Volkanovski vs. Yan</span></h2>
+  <ul class="meta">
+    <li class="b-list__box-list-item"><i>Date:</i> November 21, 2026</li>
+    <li class="b-list__box-list-item"><i>Location:</i> Test Arena</li>
+  </ul>
+
+  <table>
+    <thead><tr><th>Fighters</th><th>Weight class</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <p><a href="http://ufcstats.com/fighter-details/e1248941344b3288">Alexander Volkanovski</a></p>
+          <p class="vs">vs.</p>
+          <p><a href="http://ufcstats.com/fighter-details/d661ce4da776fc20">Petr Yan</a></p>
+        </td>
+        <td class="wc">Featherweight</td>
+      </tr>
+      <tr>
+        <td>
+          <p><a href="http://ufcstats.com/fighter-details/76e2870ffafbe38f">Movsar Evloev</a></p>
+          <p class="vs">vs.</p>
+          <p><a href="http://ufcstats.com/fighter-details/902ec2cc48c8ae8a">Julian Erosa</a></p>
+        </td>
+        <td class="wc">Featherweight</td>
+      </tr>
+      <tr>
+        <td>
+          <p><a href="http://ufcstats.com/fighter-details/b6452706b373eea1">Renato Moicano</a></p>
+          <p class="vs">vs.</p>
+          <p><a href="http://ufcstats.com/fighter-details/6c3b2525436cf5d4">Tom Nolan</a></p>
+        </td>
+        <td class="wc">Lightweight</td>
+      </tr>
+      <tr>
+        <td>
+          <p><a href="http://ufcstats.com/fighter-details/c6aee362c7a7d482">Randy Brown</a></p>
+          <p class="vs">vs.</p>
+          <p><a href="http://ufcstats.com/fighter-details/c06d6b18862f9a53">Rodrigo Sezinando</a></p>
+        </td>
+        <td class="wc">Welterweight</td>
+      </tr>
+      <tr>
+        <td>
+          <p><a href="http://ufcstats.com/fighter-details/d35298b6df168456">Talita Alencar</a></p>
+          <p class="vs">vs.</p>
+          <p><a href="http://ufcstats.com/fighter-details/2c5f5749569eef66">Tainara Lisboa</a></p>
+        </td>
+        <td class="wc">Women's Strawweight</td>
+      </tr>
+      <tr>
+        <td>
+          <p><a href="http://ufcstats.com/fighter-details/6d68c1afe954f121">Ode Osbourne</a></p>
+          <p class="vs">vs.</p>
+          <!-- fake id: tests the debut / unknown-fighter path -->
+          <p><a href="http://ufcstats.com/fighter-details/0000000000000000">Debut Test Fighter</a></p>
+        </td>
+        <td class="wc">Flyweight</td>
+      </tr>
+    </tbody>
+  </table>
+  <footer>Upload this file in the app: Predict → Upcoming card.</footer>
+</main>
+</body>
+</html>
