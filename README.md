@@ -1,41 +1,57 @@
 # UFC Fight Predictor
 
-Win probabilities for upcoming UFC fights, from a model trained on every UFC fight since 1994.
+**Try it live: https://ufc-fights-predictor.streamlit.app/**
 
-- **Upcoming fights**: the next cards from ufc.com with a prediction for every bout
-- **Head to head**: any two fighters, with pre-fight stats and what drives the pick
-- **Data & model**: one-click data update and the model's held-out performance
+I've wanted to build this since I started watching the UFC. It predicts who wins upcoming fights using every UFC fight since 1994.
+
+The app has three pages:
+
+- **Upcoming fights**: the next few cards from ufc.com, with a prediction for every bout. Click a fight to see the full breakdown.
+- **Head to head**: pick any two fighters and see their stats side by side, plus what's pushing the prediction one way or the other.
+- **Data & model**: update the data, retrain, and see how the model did on fights it hadn't seen.
 
 ## How it works
 
-1. **Data**: fight results, per-round stats and fighter profiles from the
-   [Greco1899/scrape_ufc_stats](https://github.com/Greco1899/scrape_ufc_stats) dataset (sourced from ufcstats.com),
-   stored in SQLite and updated incrementally. Upcoming cards come from ufc.com, fetched at most once a day with a
-   15 s delay between requests as its robots.txt asks.
-2. **Features**: for every fight, each fighter's stats (strikes landed/absorbed per minute, takedown accuracy/defence,
-   finish rate, win streak, layoff, age, height, reach) are computed **only from fights before that date**, with small
-   samples shrunk toward the league average. The model sees fighter A minus fighter B.
-3. **Models**: logistic regression and XGBoost, trained with random corner swaps so the order of the names can't matter.
-   The app shows their average.
-4. **Evaluation**: trained on older fights and tested on the most recent year: ~61% of winners picked, log loss 0.648
-   vs 0.693 for a coin flip, and well-calibrated probabilities.
+**Data.** Fight results, round-by-round stats and fighter profiles come from the
+[Greco1899/scrape_ufc_stats](https://github.com/Greco1899/scrape_ufc_stats) dataset, which is scraped from ufcstats.com.
+Everything goes into a SQLite database, and updates only add new events. Upcoming cards are pulled from ufc.com at most
+once a day, waiting 15 seconds between requests as their robots.txt asks.
 
-## Run locally
+**Features.** For each fight, I work out where both fighters stood going into it: strikes landed and absorbed per minute,
+takedown accuracy and defence, finish rate, win streak, time since their last fight, number of fights, age, height and reach.
+Only fights before that date are used, so the model can't cheat by looking ahead. Fighters with only a few fights get
+their stats pulled toward the league average, so one good night doesn't make someone look unbeatable. The model works
+with the difference between the two fighters (A minus B).
+
+**Models.** There are two: a logistic regression and an XGBoost model. The app shows the average of the two. During
+training I randomly swap the red and blue corners, so it doesn't matter which fighter you put first.
+
+**Results.** I trained on older fights and tested on the most recent year. It picks the winner about 61% of the time,
+with a log loss of 0.648 (a coin flip gets 0.693). The probabilities are well calibrated too: when it says 70%, that
+fighter wins roughly 70% of the time.
+
+## Running it yourself
 
 ```bash
 pip install -r requirements.txt
-streamlit run app/streamlit_app.py   # first launch downloads data and trains (~30 s)
-python -m pytest -q                  # leakage, symmetry and parsing checks
+streamlit run app/streamlit_app.py   # first run downloads the data and trains, takes about 30 seconds
+python -m pytest -q                  # checks for data leakage, symmetry and parsing
 ```
 
-## Layout
+## What's where
 
 ```
-app/streamlit_app.py   Streamlit UI
-src/ufc/               http (download) · parse (cleaning) · db (SQLite) · features · model
+app/streamlit_app.py   the Streamlit app
+src/ufc/               http (downloads) · parse (cleaning) · db (SQLite) · features · model
                        update (refresh + retrain) · predict (matchups, cards) · ufccom (upcoming cards)
-tests/                 pytest suite
-samples/               example fight-card files for the upload option
+tests/                 pytest tests
+samples/               example fight cards for the upload option
 ```
 
-Predictions are for fun and learning. The model knows nothing about injuries, short-notice replacements or betting markets.
+## Tech stack
+
+Python, pandas, SQLite, scikit-learn, XGBoost, BeautifulSoup, Streamlit, Altair, pytest
+
+## A note
+
+This is a fun project, not betting advice. The model doesn't know about injuries, short-notice replacements or the odds.
